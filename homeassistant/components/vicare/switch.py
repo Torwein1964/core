@@ -58,7 +58,9 @@ def _build_entities(
         with suppress(PyViCareNotSupportedFeatureError):
             available = device.api.getVentilationQuickmodes()
         entities.extend(
-            ViCareQuickmodeSwitch(quickmode, device.serial, device.config, device.api)
+            ViCareQuickmodeSwitch(
+                quickmode, device.serial, device.name, device.config, device.api
+            )
             for quickmode in VentilationQuickmode
             if quickmode in available
         )
@@ -90,11 +92,14 @@ class ViCareQuickmodeSwitch(ViCareEntity, SwitchEntity):
         self,
         quickmode: VentilationQuickmode,
         device_serial: str | None,
+        device_name: str | None,
         device_config: PyViCareDeviceConfig,
         device: PyViCareVentilationDevice,
     ) -> None:
         """Initialize the switch."""
-        super().__init__(ENTITY_KEYS[quickmode], device_serial, device_config, device)
+        super().__init__(
+            ENTITY_KEYS[quickmode], device_serial, device_name, device_config, device
+        )
         self._quickmode = quickmode
         self._attr_translation_key = ENTITY_KEYS[quickmode]
 

@@ -80,6 +80,7 @@ def _build_entities(
     return [
         ViCareClimate(
             device.serial,
+            device.name,
             device.config,
             device.api,
             circuit,
@@ -126,13 +127,19 @@ class ViCareClimate(ViCareEntity, ClimateEntity):
     def __init__(
         self,
         device_serial: str | None,
+        device_name: str | None,
         device_config: PyViCareDeviceConfig,
         device: PyViCareDevice,
         circuit: PyViCareHeatingCircuit,
     ) -> None:
         """Initialize the climate device."""
         super().__init__(
-            self._attr_translation_key, device_serial, device_config, device, circuit
+            self._attr_translation_key,
+            device_serial,
+            device_name,
+            device_config,
+            device,
+            circuit,
         )
         self._device = device
         self._attributes: dict[str, Any] = {}

@@ -48,6 +48,7 @@ def _build_entities(
     entities: list[SelectEntity] = [
         ViCareDHWOperatingModeSelect(
             device.serial,
+            device.name,
             device.config,
             device.api,
         )
@@ -61,6 +62,7 @@ def _build_entities(
     entities.extend(
         ViCareCircuitOperatingModeSelect(
             device.serial,
+            device.name,
             device.config,
             device.api,
             circuit,
@@ -95,11 +97,14 @@ class ViCareDHWOperatingModeSelect(ViCareEntity, SelectEntity):
     def __init__(
         self,
         device_serial: str | None,
+        device_name: str | None,
         device_config: PyViCareDeviceConfig,
         device: PyViCareDevice,
     ) -> None:
         """Initialize the DHW operating mode select entity."""
-        super().__init__("dhw_operating_mode", device_serial, device_config, device)
+        super().__init__(
+            "dhw_operating_mode", device_serial, device_name, device_config, device
+        )
         self._attr_options = [
             DHW_MODE_API_TO_HA.get(mode, mode)
             for mode in device.getDomesticHotWaterOperatingModes()
@@ -137,13 +142,14 @@ class ViCareCircuitOperatingModeSelect(ViCareEntity, SelectEntity):
     def __init__(
         self,
         device_serial: str | None,
+        device_name: str | None,
         device_config: PyViCareDeviceConfig,
         device: PyViCareDevice,
         circuit: PyViCareHeatingCircuit,
     ) -> None:
         """Initialize the operating mode select entity."""
         super().__init__(
-            "operating_mode", device_serial, device_config, device, circuit
+            "operating_mode", device_serial, device_name, device_config, device, circuit
         )
         self._attr_options = [
             CIRCUIT_MODE_API_TO_HA.get(mode, mode) for mode in circuit.getModes()

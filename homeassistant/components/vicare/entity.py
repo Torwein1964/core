@@ -41,6 +41,7 @@ class ViCareEntity(Entity):
         self,
         unique_id_suffix: str,
         device_serial: str | None,
+        device_name: str | None,
         device_config: PyViCareDeviceConfig,
         device: PyViCareDevice,
         component: PyViCareHeatingDeviceComponent | None = None,
@@ -59,6 +60,7 @@ class ViCareEntity(Entity):
         self._device_serial = device_serial
         self._device_identifier = identifier
         self._model = model
+        self._device_name = device_name or model
         self._room_id = component.id if isinstance(component, PyViCareRoom) else None
 
     @contextmanager
@@ -117,7 +119,7 @@ class ViCareEntity(Entity):
 
         device_info = DeviceInfo(
             identifiers={(DOMAIN, self._device_identifier)},
-            name=self._model,
+            name=self._device_name,
             manufacturer="Viessmann",
             model=self._model,
             configuration_url=VIESSMANN_DEVELOPER_PORTAL,
@@ -166,6 +168,7 @@ class ViCareCoordinatorEntity(CoordinatorEntity[ViCareCoordinator], ViCareEntity
         coordinator: ViCareCoordinator,
         unique_id_suffix: str,
         device_serial: str | None,
+        device_name: str | None,
         device_config: PyViCareDeviceConfig,
         device: PyViCareDevice,
         component: PyViCareHeatingDeviceComponent | None = None,
@@ -173,7 +176,13 @@ class ViCareCoordinatorEntity(CoordinatorEntity[ViCareCoordinator], ViCareEntity
         """Initialize the entity."""
         CoordinatorEntity.__init__(self, coordinator)
         ViCareEntity.__init__(
-            self, unique_id_suffix, device_serial, device_config, device, component
+            self,
+            unique_id_suffix,
+            device_serial,
+            device_name,
+            device_config,
+            device,
+            component,
         )
 
     @override

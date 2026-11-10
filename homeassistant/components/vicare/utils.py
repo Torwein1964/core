@@ -59,6 +59,37 @@ def get_device_identifier(
     return f"{gateway_serial}_{device_config.getId()}"
 
 
+def get_device_name(device: PyViCareDevice) -> str | None:
+    """Get the name a device was given in the ViCare app, if supported.
+
+    For room devices this is the only thing that tells them apart, since every
+    radiator actuator in an installation reports the same model. Not every
+    device offers the data point, and reading it requires the advanced feature
+    permission on the API client, so callers fall back to the model.
+    """
+    try:
+        return device.getName().strip() or None
+    except AttributeError:
+        # Only some device classes implement it: zigbee devices, floor heating
+        # channels, heating circuits, leak sensors and room sensors.
+        _LOGGER.debug("Device class does not implement getName()")
+    except PyViCareNotSupportedFeatureError:
+        _LOGGER.debug("Device does not offer a 'device.name' data point")
+    except PyViCareRateLimitError as limit_exception:
+        _LOGGER.debug("Vicare API rate limit exceeded: %s", limit_exception)
+    except PyViCareInvalidDataError as invalid_data_exception:
+        _LOGGER.debug("Invalid data from Vicare server: %s", invalid_data_exception)
+    except PyViCareDeviceCommunicationError as comm_exception:
+        _LOGGER.debug("Device communication error: %s", comm_exception)
+    except PyViCareInternalServerError as server_exception:
+        _LOGGER.debug("Vicare server error: %s", server_exception)
+    except requests.exceptions.ConnectionError:
+        _LOGGER.debug("Unable to retrieve data from ViCare server")
+    except ValueError:
+        _LOGGER.debug("Unable to decode data from ViCare server")
+    return None
+
+
 def get_device_serial(device: PyViCareDevice) -> str | None:
     """Get device serial for device if supported."""
     try:

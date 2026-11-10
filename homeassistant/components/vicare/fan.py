@@ -95,7 +95,7 @@ def _build_entities(
 ) -> list[ViCareFan]:
     """Create ViCare climate entities for a device."""
     return [
-        ViCareFan(device.serial, device.config, device.api)
+        ViCareFan(device.serial, device.name, device.config, device.api)
         for device in device_list
         if device.api.isVentilationDevice()
     ]
@@ -125,12 +125,17 @@ class ViCareFan(ViCareEntity, FanEntity):
     def __init__(
         self,
         device_serial: str | None,
+        device_name: str | None,
         device_config: PyViCareDeviceConfig,
         device: PyViCareDevice,
     ) -> None:
         """Initialize the fan entity."""
         super().__init__(
-            self._attr_translation_key, device_serial, device_config, device
+            self._attr_translation_key,
+            device_serial,
+            device_name,
+            device_config,
+            device,
         )
         # init preset_mode
         supported_modes = list[str](self._api.getVentilationModes())
